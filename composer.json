@@ -1,0 +1,14 @@
+{
+    "name": "montalvomiguelo/platzi.api",
+    "description": "API de consumo para profiles de platzi",
+    "require": {
+        "fabpot/goutte": "^3.1",
+        "slim/slim": "^3.0"
+    },
+    "authors": [
+        {
+            "name": "montalvomiguelo",
+            "email": "me@montalvomiguelo.com"
+        }
+    ]
+}
