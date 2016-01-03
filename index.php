@@ -12,6 +12,7 @@ $app->get('/', function($request, $response, $args) {
     API de Consumo para tu perfil de Platzi y tus badges. Ejemplo: <a href="{$homeUrl}LeonidasEsteban">{$homeUrl}LeonidasEsteban</a>
 EOT;
 });
+
 $app->get('/{name}', function ($request, $response, $args) {
 
     /**
