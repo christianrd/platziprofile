@@ -6,6 +6,12 @@ require __DIR__ . '/vendor/autoload.php';
 $app = new \Slim\App;
 
 // Define app routes
+$app->get('/', function($request, $response, $args) {
+    $homeUrl = (string)($request->getUri()->withPath('')->withQuery('')->withFragment(''));
+    return <<<EOT
+    API de Consumo para tu perfil de Platzi y tus badges. Ejemplo: <a href="{$homeUrl}LeonidasEsteban">{$homeUrl}LeonidasEsteban</a>
+EOT;
+});
 $app->get('/{name}', function ($request, $response, $args) {
 
     /**
