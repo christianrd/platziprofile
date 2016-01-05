@@ -33,10 +33,8 @@ $app->get('/{name}', function ($request, $response, $args) {
      */
     $statusCode = $client->getResponse()->getStatus();
     if ($statusCode == 404) {
-        $body = json_encode(['detail' => 'Not found']);
-        $response->write($body);
-        $response = $response->withHeader('Content-Type', 'application/json')->withStatus(404)->withHeader('Access-Control-Allow-Origin', '*');
-        return $response;
+        $notFoundHandler = $this->notFoundHandler;
+        return $notFoundHandler($request, $response);
     }
 
     /**
