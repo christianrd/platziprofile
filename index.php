@@ -181,7 +181,7 @@ $app->get('/{name}', function ($request, $response, $args) {
     $profileData = nodesToArray($profileNodesData);
 
     $platziProfile = array(
-        'profile' => $profileData,
+        'user' => $profileData,
         'badges' => $achievementsData
     );
 
