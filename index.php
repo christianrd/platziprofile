@@ -173,7 +173,7 @@ $app->get('/{name}', function ($request, $response, $args) {
         $twitter = $profileNode->selectLink('twitter');
         $facebook = $profileNode->selectLink('facebook');
 
-        return compact('avatar', 'badge', 'name', 'country', 'url', 'twitter', 'facebok');
+        return compact('avatar', 'badge', 'name', 'country', 'url', 'twitter', 'facebook');
     }
 
     $profileNodesData = getProfileDataNodes($profileNode);
