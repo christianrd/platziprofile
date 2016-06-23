@@ -10,5 +10,10 @@
             "name": "montalvomiguelo",
             "email": "me@montalvomiguelo.com"
         }
-    ]
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\": "app"
+        }
+    }
 }
