@@ -17,7 +17,7 @@ $container['client'] = function($container) {
 // Define app routes
 $app->get('/', function($request, $response, $args) {
     $uri = $request->getUri();
-    $response->getBody()->write("Usage: {$uri}montalvomiguelo/");
+    $response->getBody()->write("Usage: {$uri}montalvomiguelo");
     return $response;
 });
 
