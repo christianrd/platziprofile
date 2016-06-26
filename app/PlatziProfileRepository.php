@@ -12,18 +12,15 @@ class PlatziProfileRepository
         $this->client =  $client;
     }
 
+    /**
+     * Find user's profile data
+     * @param username
+     *
+     */
     public function find($username) {
 
-        /**
-         * Make request with the request() method
-         * @return Crawler object
-         *
-         */
         $crawler = $this->client->request('GET', self::PROFILE_URI.$username);
 
-        /**
-         * Ensure is valid link for request
-         */
         $statusCode = $this->client->getResponse()->getStatus();
         if ($statusCode == 404) {
             return false;
@@ -31,7 +28,7 @@ class PlatziProfileRepository
 
         /**
          * Achievements DOM nodes
-         * (only approved)
+         * (filtering only approved)
          *
          */
         $achievementNodes = $crawler->filter('section.AchievementList > article.Achievement')->reduce(function($node, $i) {
@@ -71,7 +68,6 @@ class PlatziProfileRepository
          *
          */
         function sortAchieveNodesData($achievementNodesData){
-            $achievementCollections = array();
             $achievementCollections['careers'] = array();
             $achievementCollections['courses'] = array();
 
@@ -90,7 +86,7 @@ class PlatziProfileRepository
             return $achievementCollections;
         }
 
-        $achievementCollections = sortAchieveNodesData( $achievementNodesData );
+        $achievementCollections = sortAchieveNodesData($achievementNodesData);
 
         /**
          * Extract data from DOM nodes into an array
@@ -177,6 +173,6 @@ class PlatziProfileRepository
             'badges' => $achievementsData
         );
 
-        return json_encode($platziProfile);
+        return $platziProfile;
     }
 }
