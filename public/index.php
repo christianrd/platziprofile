@@ -15,6 +15,12 @@ $container['client'] = function($container) {
 };
 
 // Define app routes
+$app->get('/', function($request, $response, $args) {
+    $uri = $request->getUri();
+    $response->getBody()->write("Usage: {$uri}montalvomiguelo/");
+    return $response;
+});
+
 $app->get('/{name}', function($request, $response, $args) {
     $name = $args['name'];
     $platziProfileRepository = new \App\PlatziProfileRepository($this->client);
