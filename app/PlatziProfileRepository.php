@@ -1,47 +1,32 @@
 <?php
 
-namespace App\Controllers;
+namespace App;
 
-use Goutte\Client as Client;
-
-/**
- * Hola Mundo
- */
-class Hola
+class PlatziProfileRepository
 {
+    const PROFILE_URI = '//platzi.com/@';
+
     protected $client;
 
-    public function __construct(Client $client) {
+    public function __construct($client) {
         $this->client =  $client;
     }
 
-    /**
-     * Index action
-     */
-    public function index($request, $response, $args) {
-        var_dump($this->client);
-    }
-
-    /**
-     * Profile
-     *
-     */
-    public function profile($request, $response, $args) {
+    public function find($username) {
 
         /**
          * Make request with the request() method
          * @return Crawler object
          *
          */
-        $crawler = $this->client->request('GET', '//platzi.com/profile/'.$args['name']);
+        $crawler = $this->client->request('GET', self::PROFILE_URI.$username);
 
         /**
          * Ensure is valid link for request
          */
         $statusCode = $this->client->getResponse()->getStatus();
         if ($statusCode == 404) {
-            $notFoundHandler = $this->notFoundHandler;
-            return $notFoundHandler($request, $response);
+            return false;
         }
 
         /**
@@ -192,10 +177,6 @@ class Hola
             'badges' => $achievementsData
         );
 
-        $body = json_encode($platziProfile);
-        $response->write($body);
-        $response = $response->withHeader('Content-Type', 'application/json')->withHeader('Access-Control-Allow-Origin', '*');
-
-        return $response;
+        return json_encode($platziProfile);
     }
 }
