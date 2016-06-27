@@ -3,7 +3,8 @@
     "description": "API de consumo para profiles de platzi",
     "require": {
         "fabpot/goutte": "^3.1",
-        "slim/slim": "^3.0"
+        "slim/slim": "^3.0",
+        "monolog/monolog": "^1.19"
     },
     "authors": [
         {

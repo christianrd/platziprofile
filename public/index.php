@@ -11,6 +11,13 @@ $container['client'] = function($container) {
     return new \Goutte\Client();
 };
 
+$container['logger'] = function($c) {
+    $logger = new \Monolog\Logger('my_logger');
+    $file_handler = new \Monolog\Handler\StreamHandler("../logs/app.log");
+    $logger->pushHandler($file_handler);
+    return $logger;
+};
+
 // Define app routes
 $app->get('/', function($request, $response, $args) {
     $uri = $request->getUri();
@@ -20,6 +27,7 @@ $app->get('/', function($request, $response, $args) {
 
 $app->get('/{name}', function($request, $response, $args) {
     $name = $args['name'];
+    $this->logger->addInfo("Get $name's Platzi profile");
     $platziProfileRepository = new \App\PlatziProfileRepository($this->client);
 
     $profileData = $platziProfileRepository->find($name);
