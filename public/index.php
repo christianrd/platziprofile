@@ -2,11 +2,8 @@
 
 require '../vendor/autoload.php';
 
-// Config settings
-$config['displayErrorDetails'] = true;
-
 // Create and configure Slim app
-$app = new \Slim\App(["settings" => $config]);
+$app = new \Slim\App;
 
 $container = $app->getContainer();
 

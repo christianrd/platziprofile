@@ -26,12 +26,132 @@ class PlatziProfileRepository
             return false;
         }
 
-        /**
-         * Achievements DOM nodes
-         * (filtering only approved)
-         *
-         */
-        $achievementNodes = $crawler->filter('section.AchievementList > article.Achievement')->reduce(function($node, $i) {
+        $platziProfileData = $this->getPlatziProfileData($crawler);
+
+        return $platziProfileData;
+
+    }
+
+    /**
+     * Get DOM nodes that contains the badges data
+     * @param $achievementNodes
+     * @return array with all DOM nodes with badge data
+     *
+     */
+    public function getAchievementNodesData($achievementNodes) {
+        $achievementNodesData = array();
+
+        $achievementNodes->each(function($node) use (&$achievementNodesData) {
+            $name = $node->filter('h3');
+            $url = $node->filter('img');
+            $achievementNodesData[] = compact('name', 'url');
+        });
+
+        return $achievementNodesData;
+    }
+
+    /**
+     * Create collections for Achievement Nodes Data
+     * There are two collections: 'careers' & 'courses'
+     * @param $achievementNodes array nodes data
+     * @return array with collections
+     *
+     */
+    public function sortAchieveNodesData($achievementNodesData){
+        $achievementCollections['careers'] = array();
+        $achievementCollections['courses'] = array();
+
+        foreach ($achievementNodesData as $nodesData) {
+            $imageNode = $nodesData['url'];
+            $figureNode = $imageNode->parents('figure');
+            $figureClasses = $figureNode->attr('class');
+
+            if (strpos($figureClasses, 'is-course')) {
+                $achievementCollections['courses'][] = $nodesData;
+            } else if (strpos($figureClasses, 'is-career')) {
+                $achievementCollections['careers'][] = $nodesData;
+            }
+        }
+
+        return $achievementCollections;
+    }
+
+    /**
+     * Extract data from DOM nodes into an array
+     * @param $dataNodes array with Nodes
+     * @return array with data
+     *
+     */
+    public function nodesToArray($dataNodes = array()) {
+        $data = array();
+
+        foreach($dataNodes as $key => $node) {
+            if ($node->count()) {
+                $tagName = $node->nodeName();
+                switch ($tagName) {
+                    case "a":
+                        $data[$key] = $node->link()->getUri();
+                        break;
+                    case "img":
+                        $data[$key] = $node->attr('src');
+                        break;
+                    case "p":
+                        $data[$key] = $node->text();
+                        break;
+                    case "h3":
+                        $data[$key] = $node->text();
+                        break;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Extract data from Achievement Nodes Data
+     * @param $achievementCollections
+     * @return array with data
+     *
+     */
+    public function getAchievementsData($achievementCollections) {
+        $achievementsData = array();
+        foreach($achievementCollections as $collection => $achievementNodesData ) {
+            foreach($achievementNodesData as $nodesData) {
+                $achievementData = $this->nodesToArray($nodesData);
+                $achievementsData[$collection][] = $achievementData;
+            }
+        }
+        return $achievementsData;
+    }
+
+    /**
+     * Get DOM array nodes that contains the profile data
+     * @param $profileNode main profile DOM node
+     * @return array with all DOM nodes with profile data
+     *
+     */
+    public function getProfileDataNodes($profileNode) {
+
+        $avatar = $profileNode->filter('img#avatar');
+        $badge = $profileNode->filter('img.ProfilePersonal-badge');
+        $name = $profileNode->filter('p.ProfilePersonal-name');
+        $country = $profileNode->filter('p.ProfilePersonal-country');
+        $url = $profileNode->filter('p.ProfilePersonal-url > a');
+        $twitter = $profileNode->selectLink('twitter');
+        $facebook = $profileNode->selectLink('facebook');
+
+        return compact('avatar', 'badge', 'name', 'country', 'url', 'twitter', 'facebook');
+    }
+
+    /**
+     * Get main DOM elements that contains the Badges
+     * @param $crawler
+     * @return DOM elements array
+     *
+     */
+    public function getAchievementsDomElements($crawler) {
+        return $crawler->filter('section.AchievementList > article.Achievement')->reduce(function($node, $i) {
             $nodeClasses = $node->attr('class');
             $pos = strpos($nodeClasses, 'notApproved');
             if ($pos) {
@@ -39,140 +159,39 @@ class PlatziProfileRepository
                 return false;
             }
         });
+    }
 
-        /**
-         * Get DOM nodes that contains the badges data
-         * @param $achievementNodes
-         * @return array with all DOM nodes with badge data
-         *
-         */
-        function getAchievementNodesData($achievementNodes) {
-            $achievementNodesData = array();
+    /**
+     * Get main DOM element with profile data
+     * @param $crawler
+     * @return DOM Node
+     *
+     */
+    public function getProfileDomElement($crawler) {
+        return $crawler->filter('div.ProfilePersonal');
+    }
 
-            $achievementNodes->each(function($node) use (&$achievementNodesData) {
-                $name = $node->filter('h3');
-                $url = $node->filter('img');
-                $achievementNodesData[] = compact('name', 'url');
-            });
+    /**
+     * Get full profile data
+     * @param $crawler
+     * @return profile data array
+     *
+     */
+    public function getPlatziProfileData($crawler) {
 
-            return $achievementNodesData;
-        }
+        $achievementDomElements = $this->getAchievementsDomElements($crawler);
+        $profileDomElement = $this->getProfileDomElement($crawler);
 
-        $achievementNodesData = getAchievementNodesData($achievementNodes);
+        $achievementNodesData = $this->getAchievementNodesData($achievementDomElements);
+        $achievementCollections = $this->sortAchieveNodesData($achievementNodesData);
+        $achievementsData = $this->getAchievementsData($achievementCollections);
 
-        /**
-         * Create collections for Achievement Nodes Data
-         * There are two collections: 'careers' & 'courses'
-         * @param $achievementNodes array nodes data
-         * @return array with collections
-         *
-         */
-        function sortAchieveNodesData($achievementNodesData){
-            $achievementCollections['careers'] = array();
-            $achievementCollections['courses'] = array();
+        $profileNodesData = $this->getProfileDataNodes($profileDomElement);
+        $profileData = $this->nodesToArray($profileNodesData);
 
-            foreach ($achievementNodesData as $nodesData) {
-                $imageNode = $nodesData['url'];
-                $figureNode = $imageNode->parents('figure');
-                $figureClasses = $figureNode->attr('class');
-
-                if (strpos($figureClasses, 'is-course')) {
-                    $achievementCollections['courses'][] = $nodesData;
-                } else if (strpos($figureClasses, 'is-career')) {
-                    $achievementCollections['careers'][] = $nodesData;
-                }
-            }
-
-            return $achievementCollections;
-        }
-
-        $achievementCollections = sortAchieveNodesData($achievementNodesData);
-
-        /**
-         * Extract data from DOM nodes into an array
-         * @param $dataNodes array with Nodes
-         * @return array with data
-         *
-         */
-        function nodesToArray($dataNodes = array()) {
-            $data = array();
-
-            foreach($dataNodes as $key => $node) {
-                if ($node->count()) {
-                    $tagName = $node->nodeName();
-                    switch ($tagName) {
-                        case "a":
-                            $data[$key] = $node->link()->getUri();
-                            break;
-                        case "img":
-                            $data[$key] = $node->attr('src');
-                            break;
-                        case "p":
-                            $data[$key] = $node->text();
-                            break;
-                        case "h3":
-                            $data[$key] = $node->text();
-                            break;
-                    }
-                }
-            }
-
-            return $data;
-        }
-
-        /**
-         * Extract data from Achievement Nodes Data
-         * @param $achievementCollections
-         * @return array with data
-         *
-         */
-        function getAchievementsData($achievementCollections) {
-            $achievementsData = array();
-            foreach($achievementCollections as $collection => $achievementNodesData ) {
-                foreach($achievementNodesData as $nodesData) {
-                    $achievementData = nodesToArray($nodesData);
-                    $achievementsData[$collection][] = $achievementData;
-                }
-            }
-            return $achievementsData;
-        }
-
-        $achievementsData = getAchievementsData($achievementCollections);
-
-        /**
-         * Profile DOM node
-         *
-         */
-        $profileNode = $crawler->filter('div.ProfilePersonal');
-
-        /**
-         * Get DOM array nodes that contains the profile data
-         * @param $profileNode main profile DOM node
-         * @return array with all DOM nodes with profile data
-         *
-         */
-        function getProfileDataNodes($profileNode) {
-
-            $avatar = $profileNode->filter('img#avatar');
-            $badge = $profileNode->filter('img.ProfilePersonal-badge');
-            $name = $profileNode->filter('p.ProfilePersonal-name');
-            $country = $profileNode->filter('p.ProfilePersonal-country');
-            $url = $profileNode->filter('p.ProfilePersonal-url > a');
-            $twitter = $profileNode->selectLink('twitter');
-            $facebook = $profileNode->selectLink('facebook');
-
-            return compact('avatar', 'badge', 'name', 'country', 'url', 'twitter', 'facebook');
-        }
-
-        $profileNodesData = getProfileDataNodes($profileNode);
-
-        $profileData = nodesToArray($profileNodesData);
-
-        $platziProfile = array(
+        return array(
             'user' => $profileData,
             'badges' => $achievementsData
         );
-
-        return $platziProfile;
     }
 }
