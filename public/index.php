@@ -13,7 +13,7 @@ $container['client'] = function($container) {
 
 $container['logger'] = function($c) {
     $logger = new \Monolog\Logger('my_logger');
-    $file_handler = new \Monolog\Handler\StreamHandler("../logs/app.log");
+    $file_handler = new \Monolog\Handler\StreamHandler("php://stderr");
     $logger->pushHandler($file_handler);
     return $logger;
 };
