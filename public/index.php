@@ -35,10 +35,9 @@ $app->get('/{name}', function($request, $response, $args) {
     if (!$profileData) {
         $notFoundHandler = $this->notFoundHandler;
         return $notFoundHandler($request, $response);
-    } else {
-        return $response->withJson($profileData);
     }
 
+    return $response->withJson($profileData);
 });
 
 // Run app

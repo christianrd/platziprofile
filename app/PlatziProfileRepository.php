@@ -19,7 +19,7 @@ class PlatziProfileRepository
      */
     public function find($username) {
 
-        $crawler = $this->client->request('GET', self::PROFILE_URI.$username);
+        $crawler = $this->client->request('GET', self::PROFILE_URI . $username);
 
         $statusCode = $this->client->getResponse()->getStatus();
         if ($statusCode == 404) {
