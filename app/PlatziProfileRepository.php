@@ -22,7 +22,7 @@ class PlatziProfileRepository
         $crawler = $this->client->request('GET', self::PROFILE_URI . $username);
 
         $statusCode = $this->client->getResponse()->getStatus();
-        if ($statusCode == 404) {
+        if ($statusCode != 200) {
             return false;
         }
 
