@@ -17,7 +17,7 @@ class PlatziProfileRepository
      * @param username
      *
      */
-    public function find($username) {
+    public function find($username = '') {
 
         $crawler = $this->client->request('GET', self::PROFILE_URI . $username);
 
